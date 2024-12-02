@@ -1,15 +1,15 @@
 package main
 
 import (
-	"bufio"
-	"os"
-	"strconv"
+	_ "embed"
 	"strings"
 	"testing"
+
+	"github.com/digitalcrab/adventofcode/utils"
 )
 
 func TestDistanceBetweenLists(t *testing.T) {
-	task1in1, task1in2 := input1(t)
+	task1in1, task1in2 := inputSlices(t)
 
 	type args struct {
 		l1 []int
@@ -52,44 +52,27 @@ func TestDistanceBetweenLists(t *testing.T) {
 	}
 }
 
-func input1(t *testing.T) ([]int, []int) {
+//go:embed "input.txt"
+var InputDay1 string
+
+func inputSlices(t *testing.T) ([]int, []int) {
 	t.Helper()
-
-	readFile, err := os.Open("input1.txt")
-	if err != nil {
-		t.Fatalf("can not open input file: %v", err)
-	}
-	defer func() {
-		_ = readFile.Close()
-	}()
-
-	fileScanner := bufio.NewScanner(readFile)
-	fileScanner.Split(bufio.ScanLines)
 
 	var l1, l2 []int
 
-	for fileScanner.Scan() {
-		line := fileScanner.Text()
-
+	err := utils.ScanFileLineByLine(strings.NewReader(InputDay1), func(line string) {
 		numbers := strings.SplitN(line, "   ", 2)
 		if len(numbers) != 2 {
 			t.Fatalf("unexpected count of numbers %d in the line %s", len(numbers), line)
 		}
 
-		l1 = append(l1, number(t, numbers[0]))
-		l2 = append(l2, number(t, numbers[1]))
+		l1 = append(l1, utils.Int(numbers[0]))
+		l2 = append(l2, utils.Int(numbers[1]))
+	})
+
+	if err != nil {
+		t.Fatalf("can not scan file: %v", err)
 	}
 
 	return l1, l2
-}
-
-func number(t *testing.T, s string) int {
-	t.Helper()
-
-	num, err := strconv.Atoi(s)
-	if err != nil {
-		t.Fatalf("can not parse number from the string %q: %v", s, err)
-	}
-
-	return num
 }

@@ -4,6 +4,8 @@ import (
 	"container/heap"
 	"fmt"
 	"math"
+
+	"github.com/digitalcrab/adventofcode/utils"
 )
 
 // DistanceBetweenLists calculates the distance between lists.
@@ -19,11 +21,8 @@ func DistanceBetweenLists(l1, l2 []int) int {
 	// The best approach is to use min-heap for each list.
 	// Populate them and calculate distance.
 
-	l1h := (intHeap)(l1)
-	heap.Init(&l1h)
-
-	l2h := (intHeap)(l2)
-	heap.Init(&l2h)
+	l1h := utils.InitIntHeap(l1)
+	l2h := utils.InitIntHeap(l2)
 
 	var distance int
 
@@ -39,26 +38,6 @@ func DistanceBetweenLists(l1, l2 []int) int {
 	}
 
 	return distance
-}
-
-type intHeap []int
-
-func (h intHeap) Len() int           { return len(h) }
-func (h intHeap) Less(i, j int) bool { return h[i] < h[j] }
-func (h intHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-
-func (h *intHeap) Push(x any) {
-	// Push and Pop use pointer receivers because they modify the slice's length,
-	// not just its contents.
-	*h = append(*h, x.(int))
-}
-
-func (h *intHeap) Pop() any {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[0 : n-1]
-	return x
 }
 
 // SimilarityScore calculates the score.
