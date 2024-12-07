@@ -6,9 +6,6 @@ import (
 	"testing"
 )
 
-//go:embed "input.txt"
-var Day5Input string
-
 func TestCalcSummOfMiddlePages(t *testing.T) {
 	type args struct {
 		in string
@@ -27,7 +24,7 @@ func TestCalcSummOfMiddlePages(t *testing.T) {
 		},
 		{
 			name:       "input",
-			args:       args{in: Day5Input},
+			args:       args{in: DayInput},
 			want:       4790,
 			wantSorted: 6319,
 		},

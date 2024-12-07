@@ -8,9 +8,6 @@ import (
 	"github.com/digitalcrab/adventofcode/utils"
 )
 
-//go:embed "input.txt"
-var Day4Input string
-
 func TestCountXMAS(t *testing.T) {
 	type args struct {
 		in   string
@@ -30,7 +27,7 @@ func TestCountXMAS(t *testing.T) {
 		},
 		{
 			name:       "input",
-			args:       args{in: Day4Input},
+			args:       args{in: DayInput},
 			wantXMAS:   2507,
 			wantXXXMAS: 1969, // 2025 if MAM and SAS counts, maaan ;)
 		},

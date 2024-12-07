@@ -2,6 +2,7 @@ package main
 
 import (
 	"container/heap"
+	_ "embed"
 	"fmt"
 	"math"
 
@@ -71,6 +72,9 @@ func calculateTimes(l []int) map[int]int {
 	}
 	return m
 }
+
+//go:embed "input.txt"
+var DayInput string
 
 func main() {
 	l1 := []int{3, 4, 2, 1, 3, 3}

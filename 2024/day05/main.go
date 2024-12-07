@@ -124,6 +124,9 @@ func Input(file io.Reader) (OrderRule, []Update, error) {
 //go:embed "example.txt"
 var exampleInput string
 
+//go:embed "input.txt"
+var DayInput string
+
 func main() {
 	rules, updates, err := Input(strings.NewReader(exampleInput))
 	if err != nil {

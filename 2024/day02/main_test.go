@@ -5,9 +5,6 @@ import (
 	"testing"
 )
 
-//go:embed "input.txt"
-var Day2Input string
-
 func TestNumberOfSafeReports(t *testing.T) {
 	type args struct {
 		input string
@@ -26,7 +23,7 @@ func TestNumberOfSafeReports(t *testing.T) {
 		},
 		{
 			name:          "input",
-			args:          args{input: Day2Input},
+			args:          args{input: DayInput},
 			want:          472,
 			wantTolerance: 520,
 		},

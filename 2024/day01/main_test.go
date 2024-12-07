@@ -52,15 +52,12 @@ func TestDistanceBetweenLists(t *testing.T) {
 	}
 }
 
-//go:embed "input.txt"
-var InputDay1 string
-
 func inputSlices(t *testing.T) ([]int, []int) {
 	t.Helper()
 
 	var l1, l2 []int
 
-	err := utils.ScanFileLineByLine(strings.NewReader(InputDay1), func(line string) {
+	err := utils.ScanFileLineByLine(strings.NewReader(DayInput), func(line string) {
 		numbers := strings.SplitN(line, "   ", 2)
 		if len(numbers) != 2 {
 			t.Fatalf("unexpected count of numbers %d in the line %s", len(numbers), line)

@@ -67,6 +67,9 @@ func IsReportSafeWithTolerance(levels []int) bool {
 //go:embed "example.txt"
 var exampleInput string
 
+//go:embed "input.txt"
+var DayInput string
+
 func NumberOfSafeReports(input string, debug bool) (int, int) {
 	var totalSafe, totalSafeTolerance int
 	err := utils.ScanFileLineByLine(strings.NewReader(input), func(line string) {

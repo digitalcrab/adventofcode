@@ -8,23 +8,6 @@ import (
 	"github.com/digitalcrab/adventofcode/utils"
 )
 
-type direction struct {
-	row, col int
-}
-
-var (
-	dN  = direction{row: -1, col: 0}
-	dNE = direction{row: -1, col: 1}
-	dE  = direction{row: 0, col: 1}
-	dSE = direction{row: 1, col: 1}
-	dS  = direction{row: 1, col: 0}
-	dSW = direction{row: 1, col: -1}
-	dW  = direction{row: 0, col: -1}
-	dNW = direction{row: -1, col: -1}
-
-	allDirections = []direction{dN, dNE, dE, dSE, dS, dSW, dW, dNW}
-)
-
 func CountXXXMAS(in [][]byte) int {
 	word := []byte("MAS")
 	var total int
@@ -47,19 +30,19 @@ func CountXXXMAS(in [][]byte) int {
 			var masCount int
 
 			// top-left
-			if wordFromPosition(in, word, rx-1, cx-1, dSE) {
+			if wordFromPosition(in, word, rx-1, cx-1, utils.SouthEast) {
 				masCount++
 			}
 			// top-right
-			if wordFromPosition(in, word, rx-1, cx+1, dSW) {
+			if wordFromPosition(in, word, rx-1, cx+1, utils.SouthWest) {
 				masCount++
 			}
 			// bottom-left
-			if wordFromPosition(in, word, rx+1, cx-1, dNE) {
+			if wordFromPosition(in, word, rx+1, cx-1, utils.NorthEast) {
 				masCount++
 			}
 			// bottom-right
-			if wordFromPosition(in, word, rx+1, cx+1, dNW) {
+			if wordFromPosition(in, word, rx+1, cx+1, utils.NorthWest) {
 				masCount++
 			}
 
@@ -78,7 +61,7 @@ func CountXMAS(in [][]byte) int {
 
 	for rx, row := range in {
 		for cx := range row {
-			for _, dir := range allDirections {
+			for _, dir := range utils.AllDirections {
 				if wordFromPosition(in, word, rx, cx, dir) {
 					total++
 				}
@@ -89,7 +72,7 @@ func CountXMAS(in [][]byte) int {
 	return total
 }
 
-func wordFromPosition(in [][]byte, word []byte, row, col int, dir direction) bool {
+func wordFromPosition(in [][]byte, word []byte, row, col int, dir *utils.Direction) bool {
 	// check boundaries of starting position
 	if row < 0 || row >= len(in) {
 		return false
@@ -100,8 +83,8 @@ func wordFromPosition(in [][]byte, word []byte, row, col int, dir direction) boo
 
 	for step, ch := range word {
 		// calculate coordinated of the character beginning + number * movement
-		chRow := row + step*dir.row
-		chCol := col + step*dir.col
+		chRow := row + step*dir.Row
+		chCol := col + step*dir.Col
 
 		// check row boundaries
 		if chRow < 0 || chRow >= len(in) {
@@ -124,6 +107,9 @@ func wordFromPosition(in [][]byte, word []byte, row, col int, dir direction) boo
 
 //go:embed "example.txt"
 var exampleInput string
+
+//go:embed "input.txt"
+var DayInput string
 
 func main() {
 	data, err := utils.ReadFileIntoBytesMatrix(strings.NewReader(exampleInput))

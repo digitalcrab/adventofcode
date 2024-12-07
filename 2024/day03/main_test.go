@@ -5,9 +5,6 @@ import (
 	"testing"
 )
 
-//go:embed "input.txt"
-var Day3Input string
-
 func TestDecodeMemory(t *testing.T) {
 	type args struct {
 		data    string
@@ -30,12 +27,12 @@ func TestDecodeMemory(t *testing.T) {
 		},
 		{
 			name: "input (doLogic = false)",
-			args: args{data: Day3Input, doLogic: false},
+			args: args{data: DayInput, doLogic: false},
 			want: 179834255,
 		},
 		{
 			name: "input (doLogic = true)",
-			args: args{data: Day3Input, doLogic: true},
+			args: args{data: DayInput, doLogic: true},
 			want: 80570939,
 		},
 	}

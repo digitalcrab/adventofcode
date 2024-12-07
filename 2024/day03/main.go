@@ -47,6 +47,9 @@ loop:
 //go:embed "example.txt"
 var exampleInput string
 
+//go:embed "input.txt"
+var DayInput string
+
 func main() {
 	sum := DecodeMemory(exampleInput, true)
 	fmt.Printf("Memory calculation: %d\n", sum)
