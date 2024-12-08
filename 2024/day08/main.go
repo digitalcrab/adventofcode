@@ -46,10 +46,6 @@ func CreateAntiNodes(positions []utils.Position, antiNodes map[utils.Position]st
 			antennaA := positions[i]
 			antennaB := positions[j]
 
-			if antennaA[0] == 8 && antennaA[1] == 8 {
-				fmt.Println("ssssss")
-			}
-
 			// from A in direction of B
 			for step := range limit {
 				newPos := CreateNode(antennaA, antennaB, t*float64(step+1))
