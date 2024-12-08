@@ -49,3 +49,9 @@ func NewAzimuthRing(pointingTo *Direction) *ring.Ring {
 
 	return r
 }
+
+type Position [2]int
+
+func NewPosition(r, c int) Position {
+	return [2]int{r, c}
+}

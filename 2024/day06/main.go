@@ -62,7 +62,7 @@ func FindGuardian(in [][]byte) Guardian {
 func Walk(in [][]byte, guardian Guardian) (int, int) {
 	// store distinkt steps in the map where key is a combination of
 	// row and col, value does not matter actually for now
-	visitedDirections := map[PositionKey]map[byte]struct{}{}
+	visitedDirections := map[utils.Position]map[byte]struct{}{}
 	var possibleObstacle int
 
 	looped := walk(in, guardian, visitedDirections)
@@ -88,7 +88,7 @@ func Walk(in [][]byte, guardian Guardian) (int, int) {
 			copyIn[pos[0]][pos[1]] = '#'
 
 			// run again the thing
-			loopsCh <- walk(copyIn, guardian, map[PositionKey]map[byte]struct{}{})
+			loopsCh <- walk(copyIn, guardian, map[utils.Position]map[byte]struct{}{})
 		}()
 	}
 
@@ -104,9 +104,9 @@ func Walk(in [][]byte, guardian Guardian) (int, int) {
 	return distinctSteps, possibleObstacle
 }
 
-func walk(in [][]byte, guardian Guardian, visitedDirections map[PositionKey]map[byte]struct{}) bool {
+func walk(in [][]byte, guardian Guardian, visitedDirections map[utils.Position]map[byte]struct{}) bool {
 	for {
-		positionKey := posKey(guardian.row, guardian.col)
+		positionKey := utils.NewPosition(guardian.row, guardian.col)
 
 		// record current position + direction
 		if _, visited := visitedDirections[positionKey]; !visited {
@@ -141,12 +141,6 @@ func walk(in [][]byte, guardian Guardian, visitedDirections map[PositionKey]map[
 	}
 
 	return false
-}
-
-type PositionKey [2]int
-
-func posKey(r, c int) PositionKey {
-	return [2]int{r, c}
 }
 
 //go:embed "example.txt"
