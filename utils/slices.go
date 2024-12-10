@@ -18,3 +18,11 @@ func PrintMatrix(in [][]byte) {
 		fmt.Println()
 	}
 }
+
+func RepeatInt(value int, count int) []int {
+	s := make([]int, count)
+	for i := range s {
+		s[i] = value
+	}
+	return s
+}
