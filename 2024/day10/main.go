@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/digitalcrab/adventofcode/utils"
 )
 
@@ -69,7 +71,7 @@ var exampleInput string
 var DayInput string
 
 func main() {
-	data, err := utils.ReadFileIntoBytesMatrix(strings.NewReader(exampleInput))
+	data, err := utils.ReadFileIntoBytesMatrix(strings.NewReader(DayInput))
 	if err != nil {
 		panic(err)
 	}
@@ -77,4 +79,12 @@ func main() {
 	sum := SumOfTrailheadScores(data, true)
 	fmt.Printf("Sum of all trainhead scores: %d\n", sum)
 
+	vis := NewVisualisation(data)
+
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
+	ebiten.SetWindowTitle("Hoof It")
+	ebiten.SetWindowSize(1024, 1024)
+	if err := ebiten.RunGame(vis); err != nil {
+		panic(err)
+	}
 }
