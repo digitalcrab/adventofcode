@@ -82,7 +82,7 @@ func DFS(rx, cx int, in [][]byte, seen map[utils.Position]struct{}, sides map[st
 		if newRow < 0 || newRow >= len(in) || newCol < 0 || newCol >= len(in[newRow]) {
 			// out boundaries means need fence
 			perimeter++
-			recordSide(rx, cx, dir, in, sides)
+			recordSide(rx, cx, dir, sides)
 			continue
 		}
 
@@ -90,7 +90,7 @@ func DFS(rx, cx int, in [][]byte, seen map[utils.Position]struct{}, sides map[st
 		if in[rx][cx] != in[newRow][newCol] {
 			// not the same region? needs fence
 			perimeter++
-			recordSide(rx, cx, dir, in, sides)
+			recordSide(rx, cx, dir, sides)
 			continue
 		}
 
@@ -103,27 +103,19 @@ func DFS(rx, cx int, in [][]byte, seen map[utils.Position]struct{}, sides map[st
 	return
 }
 
-func recordSide(rx, cx int, dir *utils.Direction, in [][]byte, sides map[string][]int) {
+func recordSide(rx, cx int, dir *utils.Direction, sides map[string][]int) {
 	// key is going to represent the wall that we are moving round
 	var key string
 	// value represent individual bricks (basically perimeter or that wall)
 	var value int
 
-	newRow, newCol := rx+dir.Row, cx+dir.Col
-
 	switch {
-	case newRow < 0 || newRow >= len(in):
-		key = fmt.Sprintf("%s:row:%d", dir, newRow)
-		value = newCol
-	case newCol < 0 || newCol >= len(in[newRow]):
-		key = fmt.Sprintf("%s:col:%d", dir, newCol)
-		value = newRow
-	case in[rx][cx] != in[newRow][newCol] && dir.Row != 0:
-		key = fmt.Sprintf("%s:row:%d", dir, newRow)
-		value = newCol
-	case in[rx][cx] != in[newRow][newCol] && dir.Col != 0:
-		key = fmt.Sprintf("%s:col:%d", dir, newCol)
-		value = newRow
+	case dir.Row != 0: // we moved caning the row, means hit the wall here, then use column as a brick
+		key = fmt.Sprintf("%s:%d", dir, rx)
+		value = cx
+	case dir.Col != 0:
+		key = fmt.Sprintf("%s:%d", dir, cx)
+		value = rx
 	}
 
 	// we collect wall and bricks, we also included direction into the wall name
