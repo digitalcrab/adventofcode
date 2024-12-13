@@ -10,11 +10,11 @@ import (
 )
 
 func TotalPrice(in [][]byte) (sumPerimeter, sumSides int) {
-	seen := make(map[utils.Position]struct{})
+	seen := make(map[utils.Pos]struct{})
 
-	for rx, row := range in {
-		for cx := range row {
-			pos := utils.NewPosition(rx, cx)
+	for y, row := range in {
+		for x := range row {
+			pos := utils.NewPos(y, x)
 			if _, found := seen[pos]; found {
 				continue
 			}
@@ -22,7 +22,7 @@ func TotalPrice(in [][]byte) (sumPerimeter, sumSides int) {
 			sides := make(map[string][]int)
 			// perimeter from that function used in part 1, but we also have the
 			// same value after completing part to and int's in `bricksCount`
-			area, _ := DFS(rx, cx, in, seen, sides)
+			area, _ := DFS(y, x, in, seen, sides)
 
 			wallsCount, bricksCount := calcSides(sides)
 			sumPerimeter += area * bricksCount
@@ -62,8 +62,8 @@ func calcSides(sides map[string][]int) (wallsCount, bricksCount int) {
 	return
 }
 
-func DFS(rx, cx int, in [][]byte, seen map[utils.Position]struct{}, sides map[string][]int) (area, perimeter int) {
-	pos := utils.NewPosition(rx, cx)
+func DFS(y, x int, in [][]byte, seen map[utils.Pos]struct{}, sides map[string][]int) (area, perimeter int) {
+	pos := utils.NewPos(y, x)
 	// we already went this way before so this route does not count
 	if _, found := seen[pos]; found {
 		return 0, 0
@@ -76,26 +76,26 @@ func DFS(rx, cx int, in [][]byte, seen map[utils.Position]struct{}, sides map[st
 	// moving only in 4 directions (North, East, South, West)
 	for _, dir := range utils.AzimuthDirections {
 		// the next step
-		newRow, newCol := rx+dir.Row, cx+dir.Col
+		newY, newX := y+dir.Y, x+dir.X
 
 		// check boundaries
-		if newRow < 0 || newRow >= len(in) || newCol < 0 || newCol >= len(in[newRow]) {
+		if newY < 0 || newY >= len(in) || newX < 0 || newX >= len(in[newY]) {
 			// out boundaries means need fence
 			perimeter++
-			recordSide(rx, cx, dir, sides)
+			recordSide(y, x, dir, sides)
 			continue
 		}
 
 		// move only within the same region
-		if in[rx][cx] != in[newRow][newCol] {
+		if in[y][x] != in[newY][newX] {
 			// not the same region? needs fence
 			perimeter++
-			recordSide(rx, cx, dir, sides)
+			recordSide(y, x, dir, sides)
 			continue
 		}
 
 		// go to the next step
-		newArea, newPerimeter := DFS(newRow, newCol, in, seen, sides)
+		newArea, newPerimeter := DFS(newY, newX, in, seen, sides)
 		area += newArea
 		perimeter += newPerimeter
 	}
@@ -103,19 +103,19 @@ func DFS(rx, cx int, in [][]byte, seen map[utils.Position]struct{}, sides map[st
 	return
 }
 
-func recordSide(rx, cx int, dir *utils.Direction, sides map[string][]int) {
+func recordSide(y, x int, dir *utils.Direction, sides map[string][]int) {
 	// key is going to represent the wall that we are moving round
 	var key string
 	// value represent individual bricks (basically perimeter or that wall)
 	var value int
 
 	switch {
-	case dir.Row != 0: // we moved caning the row, means hit the wall here, then use column as a brick
-		key = fmt.Sprintf("%s:%d", dir, rx)
-		value = cx
-	case dir.Col != 0:
-		key = fmt.Sprintf("%s:%d", dir, cx)
-		value = rx
+	case dir.Y != 0: // we moved caning the row, means hit the wall here, then use column as a brick
+		key = fmt.Sprintf("%s:%d", dir, y)
+		value = x
+	case dir.X != 0:
+		key = fmt.Sprintf("%s:%d", dir, x)
+		value = y
 	}
 
 	// we collect wall and bricks, we also included direction into the wall name

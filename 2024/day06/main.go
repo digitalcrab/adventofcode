@@ -10,7 +10,7 @@ import (
 )
 
 type Guardian struct {
-	row, col  int
+	y, x      int
 	direction *ring.Ring
 }
 
@@ -37,14 +37,14 @@ var directionToSymbol = map[*utils.Direction]byte{
 }
 
 func FindGuardian(in [][]byte) Guardian {
-	for rx, row := range in {
-		for cx := range row {
-			ch := in[rx][cx]
+	for y, row := range in {
+		for x := range row {
+			ch := in[y][x]
 			// not a free space and not obstacle
 			if ch != '.' && ch != '#' {
 				guardian := Guardian{
-					row:       rx,
-					col:       cx,
+					y:         y,
+					x:         x,
 					direction: utils.NewAzimuthRing(symbolToDirection[ch]),
 				}
 				return guardian
@@ -62,7 +62,7 @@ func FindGuardian(in [][]byte) Guardian {
 func Walk(in [][]byte, guardian Guardian) (int, int) {
 	// store distinkt steps in the map where key is a combination of
 	// row and col, value does not matter actually for now
-	visitedDirections := map[utils.Position]map[byte]struct{}{}
+	visitedDirections := map[utils.Pos]map[byte]struct{}{}
 	var possibleObstacle int
 
 	looped := walk(in, guardian, visitedDirections)
@@ -78,22 +78,22 @@ func Walk(in [][]byte, guardian Guardian) (int, int) {
 	// loop over all positions guardian went through
 	for pos := range visitedDirections {
 		// skip initial post
-		if pos[0] == guardian.row && pos[1] == guardian.col {
+		if pos.Y() == guardian.y && pos.X() == guardian.x {
 			continue
 		}
 
 		go func() {
 			// place a new obstacle
 			copyIn := utils.DuplicateBytesMatrix(in)
-			copyIn[pos[0]][pos[1]] = '#'
+			copyIn[pos.Y()][pos.X()] = '#'
 
 			// run again the thing
-			loopsCh <- walk(copyIn, guardian, map[utils.Position]map[byte]struct{}{})
+			loopsCh <- walk(copyIn, guardian, map[utils.Pos]map[byte]struct{}{})
 		}()
 	}
 
 	for pos := range visitedDirections {
-		if pos[0] == guardian.row && pos[1] == guardian.col {
+		if pos.Y() == guardian.y && pos.X() == guardian.x {
 			continue
 		}
 		if <-loopsCh {
@@ -104,9 +104,9 @@ func Walk(in [][]byte, guardian Guardian) (int, int) {
 	return distinctSteps, possibleObstacle
 }
 
-func walk(in [][]byte, guardian Guardian, visitedDirections map[utils.Position]map[byte]struct{}) bool {
+func walk(in [][]byte, guardian Guardian, visitedDirections map[utils.Pos]map[byte]struct{}) bool {
 	for {
-		positionKey := utils.NewPosition(guardian.row, guardian.col)
+		positionKey := utils.NewPos(guardian.y, guardian.x)
 
 		// record current position + direction
 		if _, visited := visitedDirections[positionKey]; !visited {
@@ -122,22 +122,22 @@ func walk(in [][]byte, guardian Guardian, visitedDirections map[utils.Position]m
 		}
 
 		// calculate next step as a current step plus directional change
-		nextRow, nextCol := guardian.row+guardian.Direction().Row, guardian.col+guardian.Direction().Col
+		nextY, nextX := guardian.y+guardian.Direction().Y, guardian.x+guardian.Direction().X
 
 		// check boundaries
-		if nextRow < 0 || nextRow >= len(in) || nextCol < 0 || nextCol >= len(in[nextRow]) {
+		if nextY < 0 || nextY >= len(in) || nextX < 0 || nextX >= len(in[nextY]) {
 			// guardian leaves the place
 			break
 		}
 
 		// based on current direction next step is going to be an obstacle?
-		if in[nextRow][nextCol] == '#' {
+		if in[nextY][nextX] == '#' {
 			guardian.Rotate()
 			continue
 		}
 
 		// move the guardian
-		guardian.row, guardian.col = nextRow, nextCol
+		guardian.y, guardian.x = nextY, nextX
 	}
 
 	return false

@@ -65,9 +65,9 @@ const (
 )
 
 type step struct {
-	row, col      int
+	y, x          int
 	nextDirection int
-	seen          map[utils.Position]struct{}
+	seen          map[utils.Pos]struct{}
 }
 
 type Visualisation struct {
@@ -89,13 +89,13 @@ func NewVisualisation(landscape [][]byte) *Visualisation {
 
 	// create all starting points
 	var stack []step
-	for row := 0; row < h; row++ {
-		for col := 0; col < w; col++ {
-			if landscape[row][col] == '0' {
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			if landscape[y][x] == '0' {
 				stack = append(stack, step{
-					row:  row,
-					col:  col,
-					seen: make(map[utils.Position]struct{}),
+					y:    y,
+					x:    x,
+					seen: make(map[utils.Pos]struct{}),
 				})
 			}
 		}
@@ -122,22 +122,22 @@ func (v *Visualisation) Update() error {
 
 	stackIdx := len(v.dfsStack) - 1
 	curStep := v.dfsStack[stackIdx]
-	pos := utils.NewPosition(curStep.row, curStep.col)
+	pos := utils.NewPos(curStep.y, curStep.x)
 
 	if _, found := curStep.seen[pos]; found { // going back?
 		// seen this tile, pop and mark visited
-		v.tileStates[curStep.row][curStep.col] = StateVisited
+		v.tileStates[curStep.y][curStep.x] = StateVisited
 		v.dfsStack = v.dfsStack[:stackIdx]
 		return nil
 	} else {
 		// mark as seen
 		curStep.seen[pos] = struct{}{}
-		v.tileStates[curStep.row][curStep.col] = StateVisiting
+		v.tileStates[curStep.y][curStep.x] = StateVisiting
 	}
 
 	// check if this tile is a top point
-	if v.Landscape[curStep.row][curStep.col] == '9' {
-		v.tileStates[curStep.row][curStep.col] = StateVisited
+	if v.Landscape[curStep.y][curStep.x] == '9' {
+		v.tileStates[curStep.y][curStep.x] = StateVisited
 		v.dfsStack = v.dfsStack[:stackIdx]
 		return nil
 	}
@@ -148,22 +148,22 @@ func (v *Visualisation) Update() error {
 		// move to the next direction
 		curStep.nextDirection++
 
-		newR, newC := curStep.row+dir.Row, curStep.col+dir.Col
+		newY, newX := curStep.y+dir.Y, curStep.x+dir.X
 
 		// check boundaries
-		if newR < 0 || newR >= len(v.Landscape) || newC < 0 || newC >= len(v.Landscape[newR]) {
+		if newY < 0 || newY >= len(v.Landscape) || newX < 0 || newX >= len(v.Landscape[newY]) {
 			continue
 		}
 
 		// we can move only if next step is 1 more then previous
-		if v.Landscape[curStep.row][curStep.col]+1 != v.Landscape[newR][newC] {
+		if v.Landscape[curStep.y][curStep.x]+1 != v.Landscape[newY][newX] {
 			continue
 		}
 
 		// add next step onto stack
 		newStep := step{
-			row:  newR,
-			col:  newC,
+			y:    newY,
+			x:    newX,
 			seen: curStep.seen,
 		}
 
@@ -175,7 +175,7 @@ func (v *Visualisation) Update() error {
 	}
 
 	// basically visualisation only, if nothing found we go backwards
-	v.tileStates[curStep.row][curStep.col] = StateVisited
+	v.tileStates[curStep.y][curStep.x] = StateVisited
 	v.dfsStack = v.dfsStack[:stackIdx]
 
 	return nil
@@ -198,12 +198,12 @@ func (v *Visualisation) Draw(screen *ebiten.Image) {
 
 	mapImage := ebiten.NewImage(mapWidth, mapHeight)
 
-	for row := range v.Landscape {
-		for col := range v.Landscape[row] {
-			ch := v.Landscape[row][col] - '0'
+	for y := range v.Landscape {
+		for x := range v.Landscape[y] {
+			ch := v.Landscape[y][x] - '0'
 			var tileImg *ebiten.Image
 
-			switch v.tileStates[row][col] {
+			switch v.tileStates[y][x] {
 			case StateNotVisited:
 				tileImg = greyTileImages[ch]
 			case StateVisiting:
@@ -213,7 +213,7 @@ func (v *Visualisation) Draw(screen *ebiten.Image) {
 			}
 
 			tileOp := &ebiten.DrawImageOptions{}
-			tileOp.GeoM.Translate(float64(col*tileWidth), float64(row*tileHeight))
+			tileOp.GeoM.Translate(float64(x*tileWidth), float64(y*tileHeight))
 
 			mapImage.DrawImage(tileImg, tileOp)
 		}

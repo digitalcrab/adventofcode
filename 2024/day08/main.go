@@ -15,19 +15,19 @@ func CalculateUniqueAntiNodes(in [][]byte, distance float64, limit int) int {
 	}
 
 	// we collect all the antennas and their locations
-	antennas := make(map[byte][]utils.Position)
+	antennas := make(map[byte][]utils.Pos)
 
-	for rx, row := range in {
-		for cx := range row {
-			ch := in[rx][cx]
+	for y, row := range in {
+		for x := range row {
+			ch := in[y][x]
 			if ch == '.' {
 				continue
 			}
-			antennas[ch] = append(antennas[ch], utils.NewPosition(rx, cx))
+			antennas[ch] = append(antennas[ch], utils.NewPos(y, x))
 		}
 	}
 
-	antiNodes := make(map[utils.Position]struct{})
+	antiNodes := make(map[utils.Pos]struct{})
 
 	// create all anti-nodes for the same type of antennas
 	for _, positions := range antennas {
@@ -37,7 +37,7 @@ func CalculateUniqueAntiNodes(in [][]byte, distance float64, limit int) int {
 	return len(antiNodes)
 }
 
-func CreateAntiNodes(positions []utils.Position, antiNodes map[utils.Position]struct{}, t float64, limit int, maxR, maxC int) {
+func CreateAntiNodes(positions []utils.Pos, antiNodes map[utils.Pos]struct{}, t float64, limit int, maxY, maxX int) {
 	// now we need to calculate the distances between antennas of the same group
 	// and place the anti-node on the same line at the same distance
 
@@ -50,7 +50,7 @@ func CreateAntiNodes(positions []utils.Position, antiNodes map[utils.Position]st
 			for step := range limit {
 				newPos := CreateNode(antennaA, antennaB, t*float64(step+1))
 
-				if newPos[0] < 0 || newPos[0] > maxR || newPos[1] < 0 || newPos[1] > maxC {
+				if newPos.Y() < 0 || newPos.Y() > maxY || newPos.X() < 0 || newPos.X() > maxX {
 					break
 				}
 
@@ -61,7 +61,7 @@ func CreateAntiNodes(positions []utils.Position, antiNodes map[utils.Position]st
 			for step := range limit {
 				newPos := CreateNode(antennaB, antennaA, t*float64(step+1))
 
-				if newPos[0] < 0 || newPos[0] > maxR || newPos[1] < 0 || newPos[1] > maxC {
+				if newPos.Y() < 0 || newPos.Y() > maxY || newPos.X() < 0 || newPos.X() > maxX {
 					break
 				}
 
@@ -71,10 +71,10 @@ func CreateAntiNodes(positions []utils.Position, antiNodes map[utils.Position]st
 	}
 }
 
-func CreateNode(a, b utils.Position, t float64) utils.Position {
+func CreateNode(a, b utils.Pos, t float64) utils.Pos {
 	// direction vector (from A to B)
-	dr := float64(b[0] - a[0])
-	dc := float64(b[1] - a[1])
+	dr := float64(b.Y() - a.Y())
+	dc := float64(b.X() - a.X())
 
 	// distance (sqrt(dx^2+dy^2))
 	distance := math.Sqrt(dr*dr + dc*dc)
@@ -83,10 +83,10 @@ func CreateNode(a, b utils.Position, t float64) utils.Position {
 	ur := dr / distance
 	uc := dc / distance
 
-	newRow := int(math.Round(float64(a[0]) + ur*t*distance))
-	newCol := int(math.Round(float64(a[1]) + uc*t*distance))
+	newY := int(math.Round(float64(a.Y()) + ur*t*distance))
+	newX := int(math.Round(float64(a.X()) + uc*t*distance))
 
-	return utils.NewPosition(newRow, newCol)
+	return utils.NewPos(newY, newX)
 }
 
 //go:embed "example.txt"

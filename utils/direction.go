@@ -5,16 +5,8 @@ import (
 )
 
 type Direction struct {
-	Row, Col int
-	name     string
-}
-
-func (d *Direction) X() int {
-	return d.Col
-}
-
-func (d *Direction) Y() int {
-	return d.Row
+	Y, X int
+	name string
 }
 
 func (d *Direction) String() string {
@@ -22,14 +14,14 @@ func (d *Direction) String() string {
 }
 
 var (
-	East      = &Direction{Row: 0, Col: 1, name: "East"}
-	North     = &Direction{Row: -1, Col: 0, name: "North"}
-	NorthEast = &Direction{Row: -1, Col: 1, name: "NorthEast"}
-	NorthWest = &Direction{Row: -1, Col: -1, name: "NorthWest"}
-	South     = &Direction{Row: 1, Col: 0, name: "South"}
-	SouthEast = &Direction{Row: 1, Col: 1, name: "SouthEast"}
-	SouthWest = &Direction{Row: 1, Col: -1, name: "SouthWest"}
-	West      = &Direction{Row: 0, Col: -1, name: "West"}
+	East      = &Direction{Y: 0, X: 1, name: "East"}
+	North     = &Direction{Y: -1, X: 0, name: "North"}
+	NorthEast = &Direction{Y: -1, X: 1, name: "NorthEast"}
+	NorthWest = &Direction{Y: -1, X: -1, name: "NorthWest"}
+	South     = &Direction{Y: 1, X: 0, name: "South"}
+	SouthEast = &Direction{Y: 1, X: 1, name: "SouthEast"}
+	SouthWest = &Direction{Y: 1, X: -1, name: "SouthWest"}
+	West      = &Direction{Y: 0, X: -1, name: "West"}
 
 	AzimuthDirections = []*Direction{North, East, South, West}
 	AllDirections     = []*Direction{North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest}
@@ -55,8 +47,16 @@ func NewAzimuthRing(pointingTo *Direction) *ring.Ring {
 	return r
 }
 
-type Position [2]int
+type Pos [2]int
 
-func NewPosition(r, c int) Position {
-	return [2]int{r, c}
+func NewPos(y, x int) Pos {
+	return [2]int{y, x}
+}
+
+func (p Pos) X() int {
+	return p[1]
+}
+
+func (p Pos) Y() int {
+	return p[0]
 }
