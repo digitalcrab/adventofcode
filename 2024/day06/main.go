@@ -22,20 +22,6 @@ func (g *Guardian) Rotate() {
 	g.direction = g.direction.Next()
 }
 
-var symbolToDirection = map[byte]*utils.Direction{
-	'^': utils.North,
-	'>': utils.East,
-	'v': utils.South,
-	'<': utils.West,
-}
-
-var directionToSymbol = map[*utils.Direction]byte{
-	utils.North: '^',
-	utils.East:  '>',
-	utils.South: 'v',
-	utils.West:  '<',
-}
-
 func FindGuardian(in [][]byte) Guardian {
 	for y, row := range in {
 		for x := range row {
@@ -45,7 +31,7 @@ func FindGuardian(in [][]byte) Guardian {
 				guardian := Guardian{
 					y:         y,
 					x:         x,
-					direction: utils.NewAzimuthRing(symbolToDirection[ch]),
+					direction: utils.NewAzimuthRing(utils.SymbolDirection[ch]),
 				}
 				return guardian
 			}
@@ -110,10 +96,10 @@ func walk(in [][]byte, guardian Guardian, visitedDirections map[utils.Pos]map[by
 
 		// record current position + direction
 		if _, visited := visitedDirections[positionKey]; !visited {
-			visitedDirections[positionKey] = map[byte]struct{}{directionToSymbol[guardian.Direction()]: {}}
+			visitedDirections[positionKey] = map[byte]struct{}{utils.DirectionSymbol[guardian.Direction()]: {}}
 		} else {
 			// if visited, we need to detect loop
-			dirSym := directionToSymbol[guardian.Direction()]
+			dirSym := utils.DirectionSymbol[guardian.Direction()]
 			if _, looped := visitedDirections[positionKey][dirSym]; looped {
 				return true
 			}

@@ -25,6 +25,20 @@ var (
 
 	AzimuthDirections = []*Direction{North, East, South, West}
 	AllDirections     = []*Direction{North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest}
+
+	SymbolDirection = map[byte]*Direction{
+		'^': North,
+		'>': East,
+		'v': South,
+		'<': West,
+	}
+
+	DirectionSymbol = map[*Direction]byte{
+		North: '^',
+		East:  '>',
+		South: 'v',
+		West:  '<',
+	}
 )
 
 func NewAzimuthRing(pointingTo *Direction) *ring.Ring {
