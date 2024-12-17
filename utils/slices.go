@@ -11,12 +11,23 @@ func DuplicateBytesMatrix(in [][]byte) [][]byte {
 }
 
 func PrintMatrix(in [][]byte) {
-	for rx, row := range in {
-		for cx := range row {
-			fmt.Print(string(in[rx][cx]))
+	for y, row := range in {
+		for x := range row {
+			fmt.Print(string(in[y][x]))
 		}
 		fmt.Println()
 	}
+}
+
+func CreateMatrix(height, width int, ch byte) [][]byte {
+	out := make([][]byte, height)
+	for y := range out {
+		out[y] = make([]byte, width)
+		for x := range out[y] {
+			out[y][x] = ch
+		}
+	}
+	return out
 }
 
 func RepeatInt(value int, count int) []int {
