@@ -26,3 +26,4 @@ go.work.sum
 
 # AoC
 input.txt
+input*.txt
