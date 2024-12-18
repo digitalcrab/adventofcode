@@ -32,7 +32,7 @@ func TestMoveGPS(t *testing.T) {
 			robot := utils.WhereIs(matrix, Robot)
 
 			for _, ch := range moves {
-				matrix, robot = Move(matrix, robot, utils.SymbolDirection[ch])
+				matrix, robot = Move(matrix, robot, utils.SymbolDirectionIdx[ch])
 			}
 
 			if gotSum := GPS(matrix, Box); gotSum != tt.wantSum {
@@ -69,7 +69,7 @@ func TestMove2GPS(t *testing.T) {
 			robot := utils.WhereIs(matrix, Robot)
 
 			for _, ch := range moves {
-				matrix, robot = Move2(matrix, robot, utils.SymbolDirection[ch])
+				matrix, robot = Move2(matrix, robot, utils.SymbolDirectionIdx[ch])
 			}
 
 			if gotSum := GPS(matrix, BoxLeft); gotSum != tt.wantSum {

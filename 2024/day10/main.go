@@ -48,7 +48,7 @@ func DFS(y, x int, in [][]byte, seen map[utils.Pos]struct{}) (res int) {
 	// moving only in 4 directions (North, East, South, West)
 	for _, dir := range utils.AzimuthDirections {
 		// the next step
-		newY, newX := y+dir.Y, x+dir.X
+		newY, newX := y+dir.Y(), x+dir.X()
 		// check boundaries
 		if newY < 0 || newY >= len(in) || newX < 0 || newX >= len(in[newY]) {
 			continue

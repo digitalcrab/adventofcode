@@ -1,6 +1,9 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"iter"
+)
 
 func DuplicateBytesMatrix(in [][]byte) [][]byte {
 	out := make([][]byte, len(in))
@@ -39,12 +42,34 @@ func RepeatInt(value int, count int) []int {
 }
 
 func WhereIs(in [][]byte, what byte) Pos {
-	for y, row := range in {
-		for x := range row {
-			if in[y][x] == what {
-				return NewPos(y, x)
-			}
+	for p, ch := range PositionsValues(in) {
+		if ch == what {
+			return p
 		}
 	}
 	return [2]int{}
+}
+
+func Positions(in [][]byte) iter.Seq[Pos] {
+	return func(yield func(Pos) bool) {
+		for y, row := range in {
+			for x := range row {
+				if !yield(NewPos(y, x)) {
+					return
+				}
+			}
+		}
+	}
+}
+
+func PositionsValues(in [][]byte) iter.Seq2[Pos, byte] {
+	return func(yield func(Pos, byte) bool) {
+		for y, row := range in {
+			for x := range row {
+				if !yield(NewPos(y, x), in[y][x]) {
+					return
+				}
+			}
+		}
+	}
 }

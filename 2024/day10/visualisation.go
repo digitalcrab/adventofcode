@@ -148,7 +148,7 @@ func (v *Visualisation) Update() error {
 		// move to the next direction
 		curStep.nextDirection++
 
-		newY, newX := curStep.y+dir.Y, curStep.x+dir.X
+		newY, newX := curStep.y+dir.Y(), curStep.x+dir.X()
 
 		// check boundaries
 		if newY < 0 || newY >= len(v.Landscape) || newX < 0 || newX >= len(v.Landscape[newY]) {

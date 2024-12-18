@@ -17,9 +17,10 @@ const (
 	Space    = '.'
 )
 
-func Move(in [][]byte, robot utils.Pos, direction *utils.Direction) ([][]byte, utils.Pos) {
-	nextY := robot.Y() + direction.Y
-	nextX := robot.X() + direction.X
+func Move(in [][]byte, robot utils.Pos, dirIdx int) ([][]byte, utils.Pos) {
+	dir := utils.AzimuthDirections[dirIdx]
+	nextPost := robot.Next(dir)
+	nextY, nextX := nextPost.Values()
 
 main:
 	switch nextCh := in[nextY][nextX]; nextCh {
@@ -32,33 +33,32 @@ main:
 		robot = utils.NewPos(nextY, nextX)
 	case Box: // part 1
 		// if we see the box, we need to remember its position
-		boxes := []utils.Pos{
-			utils.NewPos(nextY, nextX),
-		}
+		boxes := []utils.Pos{nextPost}
+		boxPos := nextPost
 		boxesY, boxesX := nextY, nextX
 		// and try to move with the box
 		for {
-			boxesY = boxesY + direction.Y
-			boxesX = boxesX + direction.X
+			boxPos = boxPos.Next(dir)
+			boxesY, boxesX = boxPos.Values()
 			// hit the wall somewhere along the way? no movements possible
 			if in[boxesY][boxesX] == Wall {
 				break main
 			}
 			// another box? remember it, so we can push it later
 			if in[boxesY][boxesX] == Box {
-				boxes = append(boxes, utils.NewPos(boxesY, boxesX))
+				boxes = append(boxes, boxPos)
 				continue
 			}
 			// found the first free space, need to push all boxes here
 			if in[boxesY][boxesX] == Space {
 				// move all boxes (starting from the back)
 				for _, b := range slices.Backward(boxes) {
-					in[b.Y()][b.X()], in[b.Y()+direction.Y][b.X()+direction.X] = Space, Box
+					in[b.Y()][b.X()], in[b.Y()+dir.Y()][b.X()+dir.X()] = Space, Box
 				}
 				// switch the space with robot
 				in[robot.Y()][robot.X()], in[nextY][nextX] = Space, Robot
 				// move robot
-				robot = utils.NewPos(nextY, nextX)
+				robot = nextPost
 				break main
 			}
 		}
@@ -67,7 +67,9 @@ main:
 	return in, robot
 }
 
-func Move2(in [][]byte, robot utils.Pos, direction *utils.Direction) ([][]byte, utils.Pos) {
+func Move2(in [][]byte, robot utils.Pos, dirIdx int) ([][]byte, utils.Pos) {
+	dir := utils.AzimuthDirections[dirIdx]
+
 	// here i am trying to rethink what `Move` as doing,
 	// instead of working on the `ch` bases, i'll try to move more stuff at once
 
@@ -86,9 +88,8 @@ func Move2(in [][]byte, robot utils.Pos, direction *utils.Direction) ([][]byte, 
 		// get the next item
 		current := queue[idx]
 		// move it
-		nextY := current.Y() + direction.Y
-		nextX := current.X() + direction.X
-		nextPos := utils.NewPos(nextY, nextX)
+		nextPos := current.Next(dir)
+		nextY, nextX := nextPos.Values()
 
 		ch := in[nextY][nextX]
 
@@ -129,11 +130,11 @@ func Move2(in [][]byte, robot utils.Pos, direction *utils.Direction) ([][]byte, 
 	for _, prev := range slices.Backward(queue) {
 		// replace next position with prev position value
 		// prev replace with space
-		in[prev.Y()+direction.Y][prev.X()+direction.X], in[prev.Y()][prev.X()] = in[prev.Y()][prev.X()], Space
+		in[prev.Y()+dir.Y()][prev.X()+dir.X()], in[prev.Y()][prev.X()] = in[prev.Y()][prev.X()], Space
 	}
 
 	// move robot
-	robot = utils.NewPos(robot.Y()+direction.Y, robot.X()+direction.X)
+	robot = robot.Next(dir)
 
 	return in, robot
 }
@@ -191,7 +192,7 @@ func main() {
 
 	for _, ch := range moves {
 		fmt.Printf("Move %s:\n", string(ch))
-		matrix, robot = Move(matrix, robot, utils.SymbolDirection[ch])
+		matrix, robot = Move(matrix, robot, utils.SymbolDirectionIdx[ch])
 		utils.PrintMatrix(matrix)
 	}
 
@@ -208,7 +209,7 @@ func main() {
 
 	for _, ch := range moves {
 		fmt.Printf("Move %s:\n", string(ch))
-		matrix, robot = Move2(matrix, robot, utils.SymbolDirection[ch])
+		matrix, robot = Move2(matrix, robot, utils.SymbolDirectionIdx[ch])
 		utils.PrintMatrix(matrix)
 	}
 

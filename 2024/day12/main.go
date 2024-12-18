@@ -76,7 +76,7 @@ func DFS(y, x int, in [][]byte, seen map[utils.Pos]struct{}, sides map[string][]
 	// moving only in 4 directions (North, East, South, West)
 	for _, dir := range utils.AzimuthDirections {
 		// the next step
-		newY, newX := y+dir.Y, x+dir.X
+		newY, newX := y+dir.Y(), x+dir.X()
 
 		// check boundaries
 		if newY < 0 || newY >= len(in) || newX < 0 || newX >= len(in[newY]) {
@@ -103,18 +103,18 @@ func DFS(y, x int, in [][]byte, seen map[utils.Pos]struct{}, sides map[string][]
 	return
 }
 
-func recordSide(y, x int, dir *utils.Direction, sides map[string][]int) {
+func recordSide(y, x int, dir utils.Direction, sides map[string][]int) {
 	// key is going to represent the wall that we are moving round
 	var key string
 	// value represent individual bricks (basically perimeter or that wall)
 	var value int
 
 	switch {
-	case dir.Y != 0: // we moved caning the row, means hit the wall here, then use column as a brick
-		key = fmt.Sprintf("%s:%d", dir, y)
+	case dir.Y() != 0: // we moved caning the row, means hit the wall here, then use column as a brick
+		key = fmt.Sprintf("%v:%d", dir, y)
 		value = x
-	case dir.X != 0:
-		key = fmt.Sprintf("%s:%d", dir, x)
+	case dir.X() != 0:
+		key = fmt.Sprintf("%v:%d", dir, x)
 		value = y
 	}
 

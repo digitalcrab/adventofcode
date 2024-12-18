@@ -72,7 +72,7 @@ func CountXMAS(in [][]byte) int {
 	return total
 }
 
-func wordFromPosition(in [][]byte, word []byte, y, x int, dir *utils.Direction) bool {
+func wordFromPosition(in [][]byte, word []byte, y, x int, dir utils.Direction) bool {
 	// check boundaries of starting position
 	if y < 0 || y >= len(in) {
 		return false
@@ -83,8 +83,8 @@ func wordFromPosition(in [][]byte, word []byte, y, x int, dir *utils.Direction) 
 
 	for step, ch := range word {
 		// calculate coordinated of the character beginning + number * movement
-		nextY := y + step*dir.Y
-		nextX := x + step*dir.X
+		nextY := y + step*dir.Y()
+		nextX := x + step*dir.X()
 
 		// check row boundaries
 		if nextY < 0 || nextY >= len(in) {

@@ -1,64 +1,43 @@
 package utils
 
-import (
-	"container/ring"
-)
+// Direction represents the irreverence in Y and X
+type Direction [2]int
 
-type Direction struct {
-	Y, X int
-	name string
+func (d Direction) X() int {
+	return d[1]
 }
 
-func (d *Direction) String() string {
-	return d.name
+func (d Direction) Y() int {
+	return d[0]
 }
 
 var (
-	East      = &Direction{Y: 0, X: 1, name: "East"}
-	North     = &Direction{Y: -1, X: 0, name: "North"}
-	NorthEast = &Direction{Y: -1, X: 1, name: "NorthEast"}
-	NorthWest = &Direction{Y: -1, X: -1, name: "NorthWest"}
-	South     = &Direction{Y: 1, X: 0, name: "South"}
-	SouthEast = &Direction{Y: 1, X: 1, name: "SouthEast"}
-	SouthWest = &Direction{Y: 1, X: -1, name: "SouthWest"}
-	West      = &Direction{Y: 0, X: -1, name: "West"}
+	East      = Direction{0, 1}
+	North     = Direction{-1, 0}
+	NorthEast = Direction{-1, 1}
+	NorthWest = Direction{-1, -1}
+	South     = Direction{1, 0}
+	SouthEast = Direction{1, 1}
+	SouthWest = Direction{1, -1}
+	West      = Direction{0, -1}
 
-	AzimuthDirections = []*Direction{North, East, South, West}
-	AllDirections     = []*Direction{North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest}
+	AzimuthDirections = []Direction{North, East, South, West}
+	AllDirections     = []Direction{North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest}
 
-	SymbolDirection = map[byte]*Direction{
-		'^': North,
-		'>': East,
-		'v': South,
-		'<': West,
-	}
-
-	DirectionSymbol = map[*Direction]byte{
-		North: '^',
-		East:  '>',
-		South: 'v',
-		West:  '<',
+	SymbolDirectionIdx = map[byte]int{
+		'^': 0, // North
+		'>': 1, // East
+		'v': 2, // South
+		'<': 3, // West
 	}
 )
 
-func NewAzimuthRing(pointingTo *Direction) *ring.Ring {
-	r := ring.New(len(AzimuthDirections))
+func RotateAzimuthRight(idx int) int {
+	return (idx + 1) % len(AzimuthDirections)
+}
 
-	for _, d := range AzimuthDirections {
-		r.Value = d
-		r = r.Next()
-	}
-
-	if pointingTo != nil {
-		for {
-			if r.Value.(*Direction) == pointingTo {
-				break
-			}
-			r = r.Next()
-		}
-	}
-
-	return r
+func RotateAzimuthLeft(idx int) int {
+	return (idx - 1 + len(AzimuthDirections)) % len(AzimuthDirections)
 }
 
 type Pos [2]int
@@ -67,10 +46,22 @@ func NewPos(y, x int) Pos {
 	return [2]int{y, x}
 }
 
+func (p Pos) Eq(v Pos) bool {
+	return p[1] == v[1] && p[0] == v[0]
+}
+
 func (p Pos) X() int {
 	return p[1]
 }
 
 func (p Pos) Y() int {
 	return p[0]
+}
+
+func (p Pos) Next(d Direction) Pos {
+	return NewPos(p.Y()+d.Y(), p.X()+d.X())
+}
+
+func (p Pos) Values() (int, int) {
+	return p.Y(), p.X()
 }
