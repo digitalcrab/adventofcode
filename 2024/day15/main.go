@@ -17,17 +17,6 @@ const (
 	Space    = '.'
 )
 
-func WhereIsRobot(in [][]byte) utils.Pos {
-	for y, row := range in {
-		for x := range row {
-			if in[y][x] == Robot {
-				return utils.NewPos(y, x)
-			}
-		}
-	}
-	return [2]int{}
-}
-
 func Move(in [][]byte, robot utils.Pos, direction *utils.Direction) ([][]byte, utils.Pos) {
 	nextY := robot.Y() + direction.Y
 	nextX := robot.X() + direction.X
@@ -196,7 +185,7 @@ var DayInputMove string
 
 func main() {
 	matrix, moves := Map(exampleInputMap), Movements(exampleInputMove)
-	robot := WhereIsRobot(matrix)
+	robot := utils.WhereIs(matrix, Robot)
 	fmt.Printf("Robot location: %v\n", robot)
 	utils.PrintMatrix(matrix)
 
@@ -213,7 +202,7 @@ func main() {
 	fmt.Println("..... Enlarge .....")
 	matrix = Map(exampleInputMap)
 	matrix = Enlarge(matrix)
-	robot = WhereIsRobot(matrix)
+	robot = utils.WhereIs(matrix, Robot)
 	fmt.Printf("Robot location: %v\n", robot)
 	utils.PrintMatrix(matrix)
 

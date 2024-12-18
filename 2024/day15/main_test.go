@@ -29,7 +29,7 @@ func TestMoveGPS(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			matrix, moves := Map(tt.args.inMap), Movements(tt.args.inMoves)
-			robot := WhereIsRobot(matrix)
+			robot := utils.WhereIs(matrix, Robot)
 
 			for _, ch := range moves {
 				matrix, robot = Move(matrix, robot, utils.SymbolDirection[ch])
@@ -66,7 +66,7 @@ func TestMove2GPS(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			matrix, moves := Map(tt.args.inMap), Movements(tt.args.inMoves)
 			matrix = Enlarge(matrix)
-			robot := WhereIsRobot(matrix)
+			robot := utils.WhereIs(matrix, Robot)
 
 			for _, ch := range moves {
 				matrix, robot = Move2(matrix, robot, utils.SymbolDirection[ch])

@@ -37,3 +37,14 @@ func RepeatInt(value int, count int) []int {
 	}
 	return s
 }
+
+func WhereIs(in [][]byte, what byte) Pos {
+	for y, row := range in {
+		for x := range row {
+			if in[y][x] == what {
+				return NewPos(y, x)
+			}
+		}
+	}
+	return [2]int{}
+}
