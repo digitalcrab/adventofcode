@@ -73,7 +73,7 @@ var DayInput string
 func NumberOfSafeReports(input string, debug bool) (int, int) {
 	var totalSafe, totalSafeTolerance int
 	err := utils.ScanFileLineByLine(strings.NewReader(input), func(line string) {
-		levels := utils.Integers(strings.Split(line, " "))
+		levels := utils.StringsToInts(strings.Split(line, " "))
 		isSafe := IsReportSafe(levels)
 		if isSafe {
 			totalSafe++

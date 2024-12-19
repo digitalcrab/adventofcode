@@ -32,14 +32,6 @@ var (
 	}
 )
 
-func RotateAzimuthRight(idx int) int {
-	return (idx + 1) % len(AzimuthDirections)
-}
-
-func RotateAzimuthLeft(idx int) int {
-	return (idx - 1 + len(AzimuthDirections)) % len(AzimuthDirections)
-}
-
 type Pos [2]int
 
 func NewPos(y, x int) Pos {
