@@ -71,7 +71,7 @@ type step struct {
 }
 
 type Visualisation struct {
-	Landscape  [][]byte
+	landscape  [][]byte
 	tileStates [][]int
 
 	dfsStack []step
@@ -102,7 +102,7 @@ func NewVisualisation(landscape [][]byte) *Visualisation {
 	}
 
 	v := &Visualisation{
-		Landscape:  landscape,
+		landscape:  landscape,
 		tileStates: tileStates,
 		dfsStack:   stack,
 	}
@@ -136,7 +136,7 @@ func (v *Visualisation) Update() error {
 	}
 
 	// check if this tile is a top point
-	if v.Landscape[curStep.y][curStep.x] == '9' {
+	if v.landscape[curStep.y][curStep.x] == '9' {
 		v.tileStates[curStep.y][curStep.x] = StateVisited
 		v.dfsStack = v.dfsStack[:stackIdx]
 		return nil
@@ -151,12 +151,12 @@ func (v *Visualisation) Update() error {
 		newY, newX := curStep.y+dir.Y(), curStep.x+dir.X()
 
 		// check boundaries
-		if newY < 0 || newY >= len(v.Landscape) || newX < 0 || newX >= len(v.Landscape[newY]) {
+		if newY < 0 || newY >= len(v.landscape) || newX < 0 || newX >= len(v.landscape[newY]) {
 			continue
 		}
 
 		// we can move only if next step is 1 more then previous
-		if v.Landscape[curStep.y][curStep.x]+1 != v.Landscape[newY][newX] {
+		if v.landscape[curStep.y][curStep.x]+1 != v.landscape[newY][newX] {
 			continue
 		}
 
@@ -183,8 +183,8 @@ func (v *Visualisation) Update() error {
 
 func (v *Visualisation) Draw(screen *ebiten.Image) {
 	// map size
-	mapHeight := len(v.Landscape) * tileHeight
-	mapWidth := len(v.Landscape[0]) * tileWidth
+	mapHeight := len(v.landscape) * tileHeight
+	mapWidth := len(v.landscape[0]) * tileWidth
 
 	screenSize := screen.Bounds().Size()
 
@@ -198,9 +198,9 @@ func (v *Visualisation) Draw(screen *ebiten.Image) {
 
 	mapImage := ebiten.NewImage(mapWidth, mapHeight)
 
-	for y := range v.Landscape {
-		for x := range v.Landscape[y] {
-			ch := v.Landscape[y][x] - '0'
+	for y := range v.landscape {
+		for x := range v.landscape[y] {
+			ch := v.landscape[y][x] - '0'
 			var tileImg *ebiten.Image
 
 			switch v.tileStates[y][x] {

@@ -50,6 +50,18 @@ func WhereIs(in [][]byte, what byte) Pos {
 	return [2]int{}
 }
 
+func PositionsForHeightWidth(height, width int) iter.Seq[Pos] {
+	return func(yield func(Pos) bool) {
+		for y := 0; y < height; y++ {
+			for x := 0; x < width; x++ {
+				if !yield(NewPos(y, x)) {
+					return
+				}
+			}
+		}
+	}
+}
+
 func Positions(in [][]byte) iter.Seq[Pos] {
 	return func(yield func(Pos) bool) {
 		for y, row := range in {

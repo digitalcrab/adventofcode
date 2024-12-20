@@ -16,16 +16,6 @@ const (
 	Wall  = '#'
 )
 
-type State struct {
-	pos utils.Pos
-	dir int // just an index of Azimuth directions
-}
-
-type Step struct {
-	state State // this can be integrated but i found it's easier to have this data separated from score
-	score int   // used to sort in prio queue
-}
-
 func FindBestScorePath(in [][]byte) (int, int) {
 	start, end := utils.WhereIs(in, Start), utils.WhereIs(in, End)
 	startDirection := 1 // East
@@ -44,30 +34,30 @@ func FindBestScorePath(in [][]byte) (int, int) {
 	scores[start][startDirection] = 0
 
 	// to reconstruct all shortest paths later, we keep track of predecessors
-	predecessors := map[utils.Pos][][]State{}
+	predecessors := map[utils.Pos][][]utils.StepState{}
 	for p := range utils.Positions(in) {
 		// all 4 directions
-		predecessors[p] = make([][]State, 4)
+		predecessors[p] = make([][]utils.StepState, 4)
 	}
 
 	// start the queue of positions to check
 	// push the starting point
-	queue := &Queue{}
+	queue := &utils.Queue{}
 	heap.Init(queue)
-	heap.Push(queue, &Step{
-		state: State{
-			pos: start,
-			dir: startDirection,
+	heap.Push(queue, &utils.Step{
+		St: utils.StepState{
+			P: start,
+			D: startDirection,
 		},
-		score: 0,
+		S: 0,
 	})
 
 	for queue.Len() > 0 {
-		current := heap.Pop(queue).(*Step)
-		currentScore := scores[current.state.pos][current.state.dir]
+		current := heap.Pop(queue).(*utils.Step)
+		currentScore := scores[current.St.P][current.St.D]
 
 		// check if we are at the end
-		if current.state.pos.Eq(end) {
+		if current.St.P.Eq(end) {
 			// for the part 1 we can simply return here
 			// return current.score
 		}
@@ -75,26 +65,26 @@ func FindBestScorePath(in [][]byte) (int, int) {
 		// there are 3 possible:
 		// 1. move in the given direction by 1 step, with score 1
 		{
-			nextPos := current.state.pos.Next(utils.AzimuthDirections[current.state.dir])
+			nextPos := current.St.P.Next(utils.AzimuthDirections[current.St.D])
 			if nextY, nextX := nextPos.Values(); in[nextY][nextX] != Wall { // check for a wall
 				movementScore := currentScore + 1
 
-				if movementScore < scores[nextPos][current.state.dir] {
-					scores[nextPos][current.state.dir] = movementScore
+				if movementScore < scores[nextPos][current.St.D] {
+					scores[nextPos][current.St.D] = movementScore
 
 					// found better so we reset the whole thing of predecessors
-					predecessors[nextPos][current.state.dir] = []State{current.state}
+					predecessors[nextPos][current.St.D] = []utils.StepState{current.St}
 
-					heap.Push(queue, &Step{
-						state: State{
-							pos: nextPos,
-							dir: current.state.dir,
+					heap.Push(queue, &utils.Step{
+						St: utils.StepState{
+							P: nextPos,
+							D: current.St.D,
 						},
-						score: movementScore,
+						S: movementScore,
 					})
-				} else if movementScore == scores[nextPos][current.state.dir] {
+				} else if movementScore == scores[nextPos][current.St.D] {
 					// the same score
-					predecessors[nextPos][current.state.dir] = append(predecessors[nextPos][current.state.dir], current.state)
+					predecessors[nextPos][current.St.D] = append(predecessors[nextPos][current.St.D], current.St)
 				}
 			}
 		}
@@ -102,23 +92,23 @@ func FindBestScorePath(in [][]byte) (int, int) {
 		// 2+3. rotate left or right with score 1000
 		for _, dx := range []int{1, -1} {
 			// works for both -/+ of we add all directions one more time
-			newDir := (current.state.dir + dx + len(utils.AzimuthDirections)) % len(utils.AzimuthDirections)
+			newDir := (current.St.D + dx + len(utils.AzimuthDirections)) % len(utils.AzimuthDirections)
 			movementScore := currentScore + 1000
-			if movementScore < scores[current.state.pos][newDir] {
-				scores[current.state.pos][newDir] = movementScore
+			if movementScore < scores[current.St.P][newDir] {
+				scores[current.St.P][newDir] = movementScore
 
 				// found better so we reset the whole thing of predecessors
-				predecessors[current.state.pos][newDir] = []State{current.state}
+				predecessors[current.St.P][newDir] = []utils.StepState{current.St}
 
-				heap.Push(queue, &Step{
-					state: State{
-						pos: current.state.pos,
-						dir: newDir,
+				heap.Push(queue, &utils.Step{
+					St: utils.StepState{
+						P: current.St.P,
+						D: newDir,
 					},
-					score: movementScore,
+					S: movementScore,
 				})
-			} else if movementScore == scores[current.state.pos][newDir] {
-				predecessors[current.state.pos][newDir] = append(predecessors[current.state.pos][newDir], current.state)
+			} else if movementScore == scores[current.St.P][newDir] {
+				predecessors[current.St.P][newDir] = append(predecessors[current.St.P][newDir], current.St)
 			}
 		}
 	}
@@ -133,14 +123,14 @@ func FindBestScorePath(in [][]byte) (int, int) {
 	}
 
 	// end state with the best direction
-	endState := State{pos: end, dir: bestDir}
+	endState := utils.StepState{P: end, D: bestDir}
 
 	// todo: state includes direction?!
-	visitedStates := make(map[State]bool)
+	visitedStates := make(map[utils.StepState]bool)
 	visitedStates[endState] = true
 
 	// create a stack starting from the end node
-	stack := []State{endState}
+	stack := []utils.StepState{endState}
 
 	// backtrack all nodes and count how many we've visited in all best path's
 	for len(stack) > 0 {
@@ -149,7 +139,7 @@ func FindBestScorePath(in [][]byte) (int, int) {
 		stack = stack[:len(stack)-1]
 
 		// for all predecessors
-		for _, prevState := range predecessors[current.pos][current.dir] {
+		for _, prevState := range predecessors[current.P][current.D] {
 			// not seen
 			if !visitedStates[prevState] {
 				visitedStates[prevState] = true
@@ -162,7 +152,7 @@ func FindBestScorePath(in [][]byte) (int, int) {
 	// todo: merge with a loop above? maybe?
 	visitedNodes := map[utils.Pos]struct{}{}
 	for vs := range visitedStates {
-		visitedNodes[vs.pos] = struct{}{}
+		visitedNodes[vs.P] = struct{}{}
 	}
 
 	return bestScore, len(visitedNodes)
