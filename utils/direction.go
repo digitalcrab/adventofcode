@@ -58,6 +58,10 @@ func (p Pos) Values() (int, int) {
 	return p.Y(), p.X()
 }
 
+func (p Pos) InBoundaries(height, width int) bool {
+	return p.Y() >= 0 && p.Y() < height && p.X() >= 0 && p.X() < width
+}
+
 type StepState struct {
 	P Pos
 	D int // just an index of Azimuth directions
